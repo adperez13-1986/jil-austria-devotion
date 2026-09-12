@@ -1,0 +1,18 @@
+{
+  "name": "Soledad Devotion",
+  "short_name": "Devotion",
+  "description": "A weekly devotion checklist you can fill in on your phone and share with your lifegroup leader.",
+  "id": "/soledad-devotion/",
+  "start_url": "/soledad-devotion/",
+  "scope": "/soledad-devotion/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FBF9F5",
+  "theme_color": "#FBF9F5",
+  "lang": "en",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}
