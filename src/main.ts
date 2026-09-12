@@ -2,13 +2,14 @@ import './style.css';
 import { DAY_NAMES, datesOf, isFuture, isToday, shortDate, shiftWeek, thisMonday, weekLabel } from './week.ts';
 import { completed, loadProfile, loadWeek, saveProfile, saveWeek } from './store.ts';
 import type { Profile, Week } from './store.ts';
-import { copyText, downloadPdf, shareFile, sharePdf, shareText } from './share.ts';
+import { copyText, downloadPdf, preparePng, shareFile, sharePdf, sharePng, shareText } from './share.ts';
 import { buildIcs, formatTime, newReminderUid } from './reminder.ts';
 
 const ICON = {
   check: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
   gear: '<svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>',
   dots: '<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="19" cy="12" r="1.9"/></svg>',
+  image: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2.5"/><circle cx="8.8" cy="9" r="1.6"/><path d="m3.5 16.5 4.6-4.2a2 2 0 0 1 2.7 0l6.7 6.2"/><path d="m14.5 14 1.8-1.6a2 2 0 0 1 2.7 0l1.5 1.4"/></svg>',
   copy: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2.5"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>',
   download: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>',
   chat: '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-9 8.4 9 9 0 0 1-3.3-.6L3 21l1.7-5.1A8.4 8.4 0 0 1 4 11.5 8.4 8.4 0 0 1 12.5 3 8.4 8.4 0 0 1 21 11.5z"/></svg>',
@@ -67,6 +68,7 @@ app.innerHTML = `
       <h2>Share this week</h2>
       <p class="hint" id="share-week-label"></p>
       <div class="menu">
+        <button id="do-image">${ICON.image}<span>Send as an image<small>Shows up in the chat — best for Messenger and WhatsApp</small></span></button>
         <button id="do-pdf">${ICON.download}<span>Download PDF<small>Save the sheet to this device</small></span></button>
         <button id="do-text">${ICON.chat}<span>Send as a message<small>Plain text for Messenger or Viber</small></span></button>
         <button id="do-copy">${ICON.copy}<span>Copy as text<small>Paste it anywhere</small></span></button>
@@ -259,10 +261,32 @@ app.querySelector('#share')!.addEventListener('click', async () => {
   if (result === 'downloaded') toast('PDF saved to your device');
 });
 
+/**
+ * Rendered as soon as the menu opens, not when the button is tapped: drawing
+ * the image is async, and awaiting it would spend the tap's user gesture,
+ * which `navigator.share` needs.
+ */
+let readyImage: Blob | null = null;
+
 app.querySelector('#more')!.addEventListener('click', () => {
   flushSave();
   app.querySelector<HTMLElement>('#share-week-label')!.textContent = weekLabel(monday);
   shareSheet.showModal();
+  readyImage = null;
+  preparePng(week, profile).then((image) => { readyImage = image; }).catch(() => { readyImage = null; });
+});
+
+app.querySelector('#do-image')!.addEventListener('click', async () => {
+  shareSheet.close();
+  try {
+    // Only awaits when the tap beat the render, which also costs the gesture
+    // and lands on the download instead. Rare enough to accept.
+    const image = readyImage ?? (await preparePng(week, profile));
+    const result = await sharePng(image, week, profile);
+    if (result === 'downloaded') toast('Image saved to your photos');
+  } catch {
+    toast('Could not create the image');
+  }
 });
 
 app.querySelector('#close-share')!.addEventListener('click', () => shareSheet.close());

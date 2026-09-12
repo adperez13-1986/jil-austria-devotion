@@ -15,9 +15,13 @@ Installable as a PWA, so it sits on the home screen and opens like a native app.
 4. End of the week: **Share this week** → the phone's share sheet opens with a
    PDF attached. Send it to the leader in whatever app they already use.
 
-The `…` button next to Share offers two alternatives: download the PDF, or send
-the week as plain text (better for Messenger and Viber, where a pasted message
-is easier to read on the leader's side than an attachment).
+The `…` button next to Share offers three alternatives:
+
+- **Send as an image** — a PNG of the same sheet. Chat apps preview it inline,
+  so a leader collecting a dozen on a Sunday reads them in the thread instead of
+  opening a dozen attachments. Usually the best choice for Messenger and WhatsApp.
+- **Download PDF** — save it to the device.
+- **Send as a message** — the week as plain text, for pasting into any chat.
 
 Any past week can be shared — use the arrows to move back, then Share.
 
@@ -78,7 +82,9 @@ No runtime dependencies. Vanilla TypeScript, ~19 kB of JavaScript.
 | `src/main.ts` | UI and event wiring |
 | `src/store.ts` | localStorage read/write |
 | `src/week.ts` | Monday-first week maths |
+| `src/surface.ts` | The drawing surface the sheet layout is written against |
 | `src/pdf.ts` | A small PDF writer — text, lines, circles, standard fonts |
+| `src/raster.ts` | The same surface over a canvas, exported as a PNG |
 | `src/sheet.ts` | Lays the week out as the printed form, and as plain text |
 | `src/reminder.ts` | Builds the repeating calendar event (RFC 5545 `.ics`) |
 | `src/share.ts` | Web Share API, with download and clipboard fallbacks |
@@ -87,6 +93,11 @@ No runtime dependencies. Vanilla TypeScript, ~19 kB of JavaScript.
 The PDF is generated on the phone, not fetched. That is why `src/pdf.ts` exists
 instead of a library: it keeps the whole app inside the service worker cache, so
 a member with no signal at the end of the week can still produce their sheet.
+
+The PDF and the image come from a single layout pass (`drawWeek` in `sheet.ts`)
+written against the `Surface` interface, which `pdf.ts` and `raster.ts` each
+implement. Add a row to the sheet and both formats gain it; there is no second
+layout to keep in sync.
 
 Exporting a week with nothing filled in produces a blank version of the original
 paper form, which prints fine for anyone who would rather use paper.

@@ -35,7 +35,8 @@ const TIMES_WIDTHS = [
   480, 200, 480, 541,
 ];
 
-export type Font = 'helv' | 'helvBold' | 'times';
+import { wrapWith } from './surface.ts';
+import type { Font, PageBox, Surface } from './surface.ts';
 
 const FONT_RES: Record<Font, string> = { helv: '/F1', helvBold: '/F2', times: '/F3' };
 
@@ -67,7 +68,7 @@ function toWinAnsi(text: string): number[] {
   return out;
 }
 
-export function measure(text: string, font: Font, size: number, charSpacing = 0): number {
+function measureText(text: string, font: Font, size: number, charSpacing = 0): number {
   const table = widthTable(font);
   const factor = boldFactor(font);
   let total = 0;
@@ -76,42 +77,6 @@ export function measure(text: string, font: Font, size: number, charSpacing = 0)
     total += (w * factor * size) / 1000 + charSpacing;
   }
   return total;
-}
-
-/** Greedy word wrap. Long unbreakable words are hard-split rather than overflowing. */
-export function wrap(text: string, font: Font, size: number, maxWidth: number, maxLines: number): string[] {
-  const words = text.replace(/\s+/g, ' ').trim().split(' ').filter(Boolean);
-  const lines: string[] = [];
-  let line = '';
-
-  const flush = () => { if (line) { lines.push(line); line = ''; } };
-
-  for (const word of words) {
-    if (lines.length >= maxLines) break;
-    const candidate = line ? `${line} ${word}` : word;
-    if (measure(candidate, font, size) <= maxWidth) { line = candidate; continue; }
-    flush();
-    if (measure(word, font, size) <= maxWidth) { line = word; continue; }
-    let chunk = '';
-    for (const ch of word) {
-      if (measure(chunk + ch, font, size) > maxWidth) {
-        lines.push(chunk);
-        chunk = ch;
-        if (lines.length >= maxLines) break;
-      } else {
-        chunk += ch;
-      }
-    }
-    line = chunk;
-  }
-  flush();
-
-  if (lines.length > maxLines) {
-    lines.length = maxLines;
-    const last = lines[maxLines - 1];
-    lines[maxLines - 1] = last.replace(/\s*\S*$/, '') + '…';
-  }
-  return lines;
 }
 
 function escapeString(text: string): string {
@@ -131,26 +96,11 @@ function n(value: number): string {
   return (Math.round(value * 100) / 100).toString();
 }
 
-/**
- * Drawing surface. All y coordinates are measured DOWN from the top of the
- * page, because that is how the layout below reads; the flip to PDF's
- * bottom-left origin happens here and nowhere else.
- */
-export type Canvas = {
-  ops: string[];
-  gray(value: number): void;
-  rgb(r: number, g: number, b: number): void;
-  lineWidth(value: number): void;
-  line(x1: number, y1: number, x2: number, y2: number): void;
-  rect(x: number, y: number, w: number, h: number, mode?: 'fill' | 'stroke'): void;
-  circle(cx: number, cy: number, r: number, mode?: 'fill' | 'stroke'): void;
-  polyline(points: Array<[number, number]>): void;
-  text(value: string, x: number, y: number, font: Font, size: number, charSpacing?: number): void;
-  textCentered(value: string, centerX: number, y: number, font: Font, size: number, charSpacing?: number): void;
-};
+type PdfSurface = Surface & { ops: string[] };
 
-function createCanvas(): Canvas {
-  const ops: string[] = [];
+function createCanvas(): PdfSurface {
+  // Round caps and joins, to match what the canvas renderer does by default.
+  const ops: string[] = ['1 J', '1 j'];
   const Y = (y: number) => PAGE_H - y;
 
   const text = (value: string, x: number, y: number, font: Font, size: number, charSpacing = 0) => {
@@ -195,8 +145,12 @@ function createCanvas(): Canvas {
     },
     text,
     textCentered(value, centerX, y, font, size, charSpacing = 0) {
-      const w = measure(value, font, size, charSpacing);
+      const w = measureText(value, font, size, charSpacing);
       text(value, centerX - w / 2, y, font, size, charSpacing);
+    },
+    measure: measureText,
+    wrap(value, font, size, maxWidth, maxLines) {
+      return wrapWith(value, (v) => measureText(v, font, size), maxWidth, maxLines);
     },
   };
 }
@@ -212,7 +166,9 @@ function pdfDate(date: Date): string {
 }
 
 /** Assemble a one-page document from a drawing callback. */
-export function renderPdf(title: string, draw: (canvas: Canvas, page: { width: number; height: number }) => void): Blob {
+export const A4: PageBox = { width: PAGE_W, height: PAGE_H };
+
+export function renderPdf(title: string, draw: (surface: Surface, page: PageBox) => void): Blob {
   const canvas = createCanvas();
   draw(canvas, { width: PAGE_W, height: PAGE_H });
   const content = canvas.ops.join('\n');

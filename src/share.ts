@@ -1,5 +1,5 @@
 import type { Week, Profile } from './store.ts';
-import { weekAsPdf, weekAsText, pdfFilename } from './sheet.ts';
+import { sheetFilename, weekAsPdf, weekAsPng, weekAsText } from './sheet.ts';
 
 export type ShareResult = 'shared' | 'downloaded' | 'cancelled';
 
@@ -40,12 +40,26 @@ export async function shareFile(blob: Blob, filename: string, title: string): Pr
 }
 
 export function sharePdf(week: Week, profile: Profile): Promise<ShareResult> {
-  const filename = pdfFilename(week, profile);
+  const filename = sheetFilename(week, profile, 'pdf');
   return shareFile(weekAsPdf(week, profile), filename, filename);
 }
 
+/**
+ * Rendering to a canvas is async, which loses the user gesture that
+ * `navigator.share` requires — so the image is rendered up front, before the
+ * button is tapped, and this only ever hands over a blob that already exists.
+ */
+export function sharePng(image: Blob, week: Week, profile: Profile): Promise<ShareResult> {
+  const filename = sheetFilename(week, profile, 'png');
+  return shareFile(image, filename, filename);
+}
+
+export function preparePng(week: Week, profile: Profile): Promise<Blob> {
+  return weekAsPng(week, profile);
+}
+
 export function downloadPdf(week: Week, profile: Profile): void {
-  download(weekAsPdf(week, profile), pdfFilename(week, profile));
+  download(weekAsPdf(week, profile), sheetFilename(week, profile, 'pdf'));
 }
 
 export async function copyText(week: Week, profile: Profile): Promise<boolean> {

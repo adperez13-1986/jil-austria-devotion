@@ -1,4 +1,6 @@
-import { renderPdf, wrap, measure } from './pdf.ts';
+import { A4, renderPdf } from './pdf.ts';
+import { renderPng } from './raster.ts';
+import type { PageBox, Surface } from './surface.ts';
 import type { Week, Profile } from './store.ts';
 import { completed } from './store.ts';
 import { DAY_NAMES, datesOf, shortDate, weekLabel } from './week.ts';
@@ -9,16 +11,14 @@ const ROW_H = 88;
 
 const ACCENT: [number, number, number] = [0.184, 0.365, 0.314];
 
-/** One page that looks like the printed checklist, filled in. */
-export function weekAsPdf(week: Week, profile: Profile): Blob {
+/** The printed checklist, filled in. Drawn once, rendered as PDF or as PNG. */
+function drawWeek(week: Week, profile: Profile): (c: Surface, page: PageBox) => void {
   const label = weekLabel(week.monday);
   const dates = datesOf(week.monday);
 
-  return renderPdf(`Devotion — ${label}`, (c, page) => {
+  return (c, page) => {
     const center = page.width / 2;
     const right = page.width - MARGIN;
-
-    c.ops.push('1 J', '1 j');
 
     c.gray(0.1);
     c.textCentered('Devotion', center, 72, 'times', 27);
@@ -79,13 +79,13 @@ export function weekAsPdf(week: Week, profile: Profile): Blob {
         c.text('Bible text', x, top + 17, 'helv', 8);
         c.gray(0.88);
         c.lineWidth(0.5);
-        c.line(x + measure('Bible text', 'helv', 8) + 8, top + 19, right, top + 19);
+        c.line(x + c.measure('Bible text', 'helv', 8) + 8, top + 19, right, top + 19);
       }
 
       const note = day.note.trim();
       if (note) {
         c.gray(0.42);
-        wrap(note, 'helv', 8.8, width, 3).forEach((line, k) => {
+        c.wrap(note, 'helv', 8.8, width, 3).forEach((line: string, k: number) => {
           c.text(line, x, top + 34 + k * 11.5, 'helv', 8.8);
         });
       } else {
@@ -93,7 +93,7 @@ export function weekAsPdf(week: Week, profile: Profile): Blob {
         c.text('Short reflection', x, top + 34, 'helv', 8);
         c.gray(0.9);
         c.lineWidth(0.5);
-        c.line(x + measure('Short reflection', 'helv', 8) + 8, top + 36, right, top + 36);
+        c.line(x + c.measure('Short reflection', 'helv', 8) + 8, top + 36, right, top + 36);
         c.line(x, top + 50, right, top + 50);
       }
 
@@ -107,7 +107,15 @@ export function weekAsPdf(week: Week, profile: Profile): Blob {
     const footer = [`${completed(week)} of 7 days`, profile.church.trim()].filter(Boolean).join('   ·   ');
     c.gray(0.58);
     c.textCentered(footer, center, 806, 'helv', 8.5);
-  });
+  };
+}
+
+export function weekAsPdf(week: Week, profile: Profile): Blob {
+  return renderPdf(`Devotion — ${weekLabel(week.monday)}`, drawWeek(week, profile));
+}
+
+export function weekAsPng(week: Week, profile: Profile): Promise<Blob> {
+  return renderPng(A4, drawWeek(week, profile));
 }
 
 /** Plain text for pasting into Messenger, Viber or a group chat. */
@@ -133,7 +141,7 @@ export function weekAsText(week: Week, profile: Profile): string {
   return lines.join('\n');
 }
 
-export function pdfFilename(week: Week, profile: Profile): string {
+export function sheetFilename(week: Week, profile: Profile, extension: string): string {
   const who = profile.name.trim().replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '');
-  return `Devotion-${week.monday}${who ? `-${who}` : ''}.pdf`;
+  return `Devotion-${week.monday}${who ? `-${who}` : ''}.${extension}`;
 }
