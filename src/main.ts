@@ -2,7 +2,8 @@ import './style.css';
 import { DAY_NAMES, datesOf, isFuture, isToday, shortDate, shiftWeek, thisMonday, weekLabel } from './week.ts';
 import { completed, loadProfile, loadWeek, saveProfile, saveWeek } from './store.ts';
 import type { Profile, Week } from './store.ts';
-import { copyText, downloadPdf, sharePdf, shareText } from './share.ts';
+import { copyText, downloadPdf, shareFile, sharePdf, shareText } from './share.ts';
+import { buildIcs, formatTime, newReminderUid } from './reminder.ts';
 
 const ICON = {
   check: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
@@ -47,6 +48,16 @@ app.innerHTML = `
       <div class="field"><label for="f-name">Name</label><input id="f-name" autocomplete="name" /></div>
       <div class="field"><label for="f-group">Lifegroup</label><input id="f-group" placeholder="Your leader's name" /></div>
       <div class="field"><label for="f-church">Church</label><input id="f-church" /></div>
+
+      <div class="field reminder">
+        <label for="f-time">Daily reminder</label>
+        <div class="reminder-row">
+          <input id="f-time" type="time" step="300" />
+          <button type="button" id="do-reminder">Add to calendar</button>
+        </div>
+        <p class="note" id="reminder-note"></p>
+      </div>
+
       <button class="close" value="close">Done</button>
     </form>
   </dialog>
@@ -187,21 +198,52 @@ app.querySelector('#this-week')!.addEventListener('click', () => {
 const nameInput = app.querySelector<HTMLInputElement>('#f-name')!;
 const groupInput = app.querySelector<HTMLInputElement>('#f-group')!;
 const churchInput = app.querySelector<HTMLInputElement>('#f-church')!;
+const timeInput = app.querySelector<HTMLInputElement>('#f-time')!;
+const reminderNote = app.querySelector<HTMLElement>('#reminder-note')!;
+
+function describeReminder(): void {
+  reminderNote.textContent = profile.reminderUid
+    ? `Set for ${formatTime(profile.reminderTime)}. Change the time and tap again to update it.`
+    : 'Puts a repeating event in your phone’s calendar so it can remind you even when the app is closed.';
+}
 
 app.querySelector('#open-settings')!.addEventListener('click', () => {
   nameInput.value = profile.name;
   groupInput.value = profile.lifegroup;
   churchInput.value = profile.church;
+  timeInput.value = profile.reminderTime;
+  describeReminder();
   settingsSheet.showModal();
 });
 
-settingsSheet.addEventListener('close', () => {
+function readSettings(): void {
   profile = {
+    ...profile,
     name: nameInput.value.trim(),
     lifegroup: groupInput.value.trim(),
     church: churchInput.value.trim(),
+    reminderTime: timeInput.value || '06:00',
   };
   saveProfile(profile);
+}
+
+settingsSheet.addEventListener('close', readSettings);
+
+app.querySelector('#do-reminder')!.addEventListener('click', async () => {
+  readSettings();
+  // Reusing the UID and bumping the sequence makes calendars update the event
+  // they already have rather than stacking a second alarm on top of it.
+  if (!profile.reminderUid) profile.reminderUid = newReminderUid();
+  profile.reminderSequence += 1;
+  saveProfile(profile);
+  describeReminder();
+
+  const result = await shareFile(
+    buildIcs(profile.reminderTime, profile.reminderUid, profile.reminderSequence),
+    'Devotion-reminder.ics',
+    'Daily devotion reminder',
+  );
+  if (result === 'downloaded') toast('Open the downloaded file to add it');
 });
 
 /* ---------- sharing ---------- */

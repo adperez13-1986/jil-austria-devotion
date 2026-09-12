@@ -15,18 +15,19 @@ function download(blob: Blob, filename: string): void {
 }
 
 /**
- * Hand the week to the phone's share sheet as a PDF so it can go straight to
- * the lifegroup leader. Desktop browsers mostly can't share files — they get
- * the download instead.
+ * Hand a file to the phone's share sheet — the PDF goes straight to the
+ * lifegroup leader, the .ics straight into Calendar. Desktop browsers mostly
+ * can't share files, so they get the download instead.
+ *
+ * Must be called straight off a click: an await before `share` loses the
+ * user gesture and Safari rejects it.
  */
-export async function sharePdf(week: Week, profile: Profile): Promise<ShareResult> {
-  const blob = weekAsPdf(week, profile);
-  const filename = pdfFilename(week, profile);
-  const file = new File([blob], filename, { type: 'application/pdf' });
+export async function shareFile(blob: Blob, filename: string, title: string): Promise<ShareResult> {
+  const file = new File([blob], filename, { type: blob.type });
 
   if (navigator.canShare?.({ files: [file] })) {
     try {
-      await navigator.share({ files: [file], title: filename });
+      await navigator.share({ files: [file], title });
       return 'shared';
     } catch (error) {
       if (error instanceof DOMException && error.name === 'AbortError') return 'cancelled';
@@ -36,6 +37,11 @@ export async function sharePdf(week: Week, profile: Profile): Promise<ShareResul
 
   download(blob, filename);
   return 'downloaded';
+}
+
+export function sharePdf(week: Week, profile: Profile): Promise<ShareResult> {
+  const filename = pdfFilename(week, profile);
+  return shareFile(weekAsPdf(week, profile), filename, filename);
 }
 
 export function downloadPdf(week: Week, profile: Profile): void {

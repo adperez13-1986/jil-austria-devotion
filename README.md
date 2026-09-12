@@ -21,6 +21,22 @@ is easier to read on the leader's side than an attachment).
 
 Any past week can be shared — use the arrows to move back, then Share.
 
+## Daily reminders
+
+Settings has a time picker and an **Add to calendar** button. It hands the phone
+a repeating calendar event with an alarm, so the reminder fires on a locked
+screen at the chosen time, every day, on both iPhone and Android.
+
+It is a calendar event rather than a push notification on purpose. Browsers have
+no API for scheduling a notification for later — the page would have to be open,
+or a push server would have to wake it. A push server means a backend and a
+monthly bill, and this app is meant to cost nothing to run. A calendar alarm does
+the same job for free and works identically on both platforms.
+
+Changing the time and tapping again updates the existing event rather than adding
+a second one: the event keeps a stable `UID` stored in the profile, and each
+re-add bumps its `SEQUENCE`. Removing the reminder is done in the calendar app.
+
 ## Where the data lives
 
 In the browser's `localStorage`, on the member's own phone. There is no account,
@@ -64,6 +80,7 @@ No runtime dependencies. Vanilla TypeScript, ~19 kB of JavaScript.
 | `src/week.ts` | Monday-first week maths |
 | `src/pdf.ts` | A small PDF writer — text, lines, circles, standard fonts |
 | `src/sheet.ts` | Lays the week out as the printed form, and as plain text |
+| `src/reminder.ts` | Builds the repeating calendar event (RFC 5545 `.ics`) |
 | `src/share.ts` | Web Share API, with download and clipboard fallbacks |
 | `vite.config.ts` | Build config, plus the plugin that emits `dist/sw.js` |
 

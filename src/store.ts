@@ -20,6 +20,11 @@ export type Profile = {
   name: string;
   lifegroup: string;
   church: string;
+  /** 'HH:MM' for the daily calendar reminder. */
+  reminderTime: string;
+  /** Stable across edits so re-adding updates the event instead of duplicating it. */
+  reminderUid: string;
+  reminderSequence: number;
 };
 
 const WEEK_PREFIX = 'devotion:week:';
@@ -62,8 +67,17 @@ export function saveWeek(week: Week): void {
   write(WEEK_PREFIX + week.monday, week);
 }
 
+const DEFAULT_PROFILE: Profile = {
+  name: '',
+  lifegroup: '',
+  church: 'Soledad',
+  reminderTime: '06:00',
+  reminderUid: '',
+  reminderSequence: 0,
+};
+
 export function loadProfile(): Profile {
-  return { name: '', lifegroup: '', church: 'Soledad', ...read<Profile>(PROFILE_KEY) };
+  return { ...DEFAULT_PROFILE, ...read<Profile>(PROFILE_KEY) };
 }
 
 export function saveProfile(profile: Profile): void {
