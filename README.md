@@ -67,6 +67,26 @@ Deploys to GitHub Pages on every push to `main` via `.github/workflows/deploy.ym
 The repo name must stay `soledad-devotion`, or `base` in `vite.config.ts` and the
 absolute paths in `index.html` need to change with it.
 
+### The QR code
+
+`qr/` holds what the app gets introduced with:
+
+| File | For |
+| --- | --- |
+| `devotion-qr-slide.png` | 1920x1080, to project during an announcement |
+| `devotion-qr-poster.pdf` | A4, to print and pin up — vector, so it scales to any paper |
+| `devotion-qr-poster.png` | The same poster as pixels |
+| `devotion-qr.png` / `.svg` | The bare code, for pasting into anything else |
+
+Regenerate after a URL change:
+
+    npm i -D --no-save qrcode
+    node scripts/make-qr.mjs
+
+Every output is checked to decode back to the exact URL, including heavily
+downscaled, before being committed — a QR that does not scan is worse than no
+QR at all.
+
 ### The explainer video
 
 `demo/devotion-demo.mp4` is recorded by driving the real app in a phone-sized
