@@ -13,7 +13,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-const URL_TEXT = process.env.QR_URL ?? 'https://adperez13-1986.github.io/soledad-devotion/';
+const URL_TEXT = process.env.QR_URL ?? 'https://adperez13-1986.github.io/jil-austria-devotion/';
 const OUT = 'qr';
 
 const PAPER = '#FBF9F5';
@@ -94,7 +94,7 @@ function poster() {
   ${text('1.  Scan the code with your camera.', W / 2, 2720, { size: 78, fill: INK })}
   ${text('2.  Tap Share, then Add to Home Screen.', W / 2, 2840, { size: 78, fill: INK })}
   ${text('Fill it in each day. Send it to your lifegroup leader every week.', W / 2, 3020, { size: 66, fill: ACCENT, weight: 600 })}
-  ${text('Soledad', W / 2, 3320, { size: 58, fill: FAINT })}
+  ${text('JIL Austria', W / 2, 3320, { size: 58, fill: FAINT })}
 </svg>`;
 }
 

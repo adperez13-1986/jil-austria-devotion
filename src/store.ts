@@ -70,7 +70,7 @@ export function saveWeek(week: Week): void {
 const DEFAULT_PROFILE: Profile = {
   name: '',
   lifegroup: '',
-  church: 'Soledad',
+  church: 'JIL Austria',
   reminderTime: '06:00',
   reminderUid: '',
   reminderSequence: 0,

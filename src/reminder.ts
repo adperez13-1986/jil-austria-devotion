@@ -8,7 +8,7 @@
  * iPhone and Android, and costs nothing to run.
  */
 
-const PRODID = '-//Soledad//Devotion//EN';
+const PRODID = '-//JIL Austria//Devotion//EN';
 
 function escapeText(value: string): string {
   return value
@@ -52,7 +52,7 @@ export function firstOccurrence(time: string, now = new Date()): Date {
 
 export function newReminderUid(): string {
   const random = Math.random().toString(36).slice(2, 10);
-  return `devotion-${Date.now().toString(36)}-${random}@soledad`;
+  return `devotion-${Date.now().toString(36)}-${random}@jilaustria`;
 }
 
 export function formatTime(time: string): string {

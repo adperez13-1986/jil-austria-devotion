@@ -21,7 +21,7 @@ import { execFileSync } from 'node:child_process';
 import { mkdirSync, readdirSync, renameSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 
-const APP = process.env.DEMO_URL ?? 'http://localhost:5200/soledad-devotion/';
+const APP = process.env.DEMO_URL ?? 'http://localhost:5200/jil-austria-devotion/';
 const OUT = 'demo';
 const RAW = join(OUT, 'raw');
 

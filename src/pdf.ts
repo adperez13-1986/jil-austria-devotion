@@ -182,7 +182,7 @@ export function renderPdf(title: string, draw: (surface: Surface, page: PageBox)
     '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>',
     '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>',
     '<< /Type /Font /Subtype /Type1 /BaseFont /Times-Roman /Encoding /WinAnsiEncoding >>',
-    `<< /Title (${escapeString(title)}) /Producer (Soledad Devotion) /CreationDate (${pdfDate(new Date())}) >>`,
+    `<< /Title (${escapeString(title)}) /Producer (JIL Austria Devotion) /CreationDate (${pdfDate(new Date())}) >>`,
   ];
 
   let out = '%PDF-1.4\n';

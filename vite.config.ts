@@ -2,7 +2,7 @@ import { writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { defineConfig, type Plugin } from 'vite';
 
-const BASE = '/soledad-devotion/';
+const BASE = '/jil-austria-devotion/';
 
 /** Files copied verbatim from public/ — Rollup never sees them, so list them here. */
 const PUBLIC_ASSETS = [

@@ -1,6 +1,6 @@
 # Devotion
 
-A weekly devotion checklist for Soledad members — the paper form, on a phone.
+A weekly devotion checklist for JIL Austria members — the paper form, on a phone.
 Fill it in through the week, then share the week to your lifegroup leader as a
 PDF or as a chat message.
 
@@ -64,7 +64,7 @@ be pointed at a backend without touching the rest.
     npm run preview    # serve the built output
 
 Deploys to GitHub Pages on every push to `main` via `.github/workflows/deploy.yml`.
-The repo name must stay `soledad-devotion`, or `base` in `vite.config.ts` and the
+The repo name must stay `jil-austria-devotion`, or `base` in `vite.config.ts` and the
 absolute paths in `index.html` need to change with it.
 
 ### The QR code
