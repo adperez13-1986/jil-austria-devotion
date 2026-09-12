@@ -67,6 +67,26 @@ Deploys to GitHub Pages on every push to `main` via `.github/workflows/deploy.ym
 The repo name must stay `soledad-devotion`, or `base` in `vite.config.ts` and the
 absolute paths in `index.html` need to change with it.
 
+### The explainer video
+
+`demo/devotion-demo.mp4` is recorded by driving the real app in a phone-sized
+browser, with captions and tap circles drawn over it. To redo it after a UI
+change:
+
+    npm i -D --no-save playwright   # kept out of package.json so CI stays fast
+    npx playwright install chromium ffmpeg
+    npm run dev -- --port 5200      # in another shell
+    node scripts/record-demo.mjs
+
+It records the browser, so it covers everything that happens inside the app.
+Adding to the home screen, the iOS share sheet and Calendar are operating system
+screens that no browser can record — those still need a screen recording from a
+real phone.
+
+Note that Playwright drops the page into the video canvas *unscaled*, so asking
+for a video larger than the viewport just pads the frame with grey. The recorder
+captures at viewport size and lets ffmpeg upscale.
+
 ### Icons
 
 `npm run icons` regenerates `public/*.png` from the mark defined in
