@@ -26,6 +26,9 @@ const OUT = 'demo';
 const RAW = join(OUT, 'raw');
 
 const PHONE = { width: 390, height: 844 };
+const IPHONE_UA =
+  'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 ' +
+  '(KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1';
 /**
  * Playwright drops the page picture into the video canvas unscaled, so asking
  * for anything larger than the viewport just pads the frame with grey. Record
@@ -51,12 +54,6 @@ function setUp() {
  * and the circle that marks each tap, neither of which the app knows about.
  */
 function overlay() {
-  try {
-    localStorage.setItem('devotion:install-dismissed', '1');
-  } catch {
-    // Nothing to do — the banner just shows up in the video.
-  }
-
   const boot = () => {
     if (document.getElementById('demo-caption')) return;
 
@@ -120,6 +117,7 @@ async function record() {
     deviceScaleFactor: 2,
     isMobile: true,
     hasTouch: true,
+    userAgent: IPHONE_UA,
     recordVideo: { dir: RAW, size: VIDEO },
   });
 
@@ -138,7 +136,15 @@ async function record() {
   await beat(700);
 
   await say('Your devotion checklist, on your phone');
-  await beat(2400);
+  await beat(2200);
+
+  await page.waitForSelector('.install');
+  await say('First — add it to your home screen');
+  await beat(1900);
+  await say('It shows the right steps for whichever phone you have');
+  await beat(2500);
+  await page.locator('.install .dismiss').tap();
+  await beat(800);
 
   await say('Tap the gear to set up — just once');
   await beat(1100);
