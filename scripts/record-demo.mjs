@@ -148,7 +148,7 @@ async function record() {
   await say('Your name, and your lifegroup leader');
   await type(page.locator('#f-name'), 'Adrian Perez');
   await beat(300);
-  await type(page.locator('#f-group'), 'Ptr. Dan');
+  await type(page.locator('#f-group'), 'Bro. Crispin Pagulong Jr.');
   await beat(1100);
 
   await say('Pick a time for your daily reminder');
