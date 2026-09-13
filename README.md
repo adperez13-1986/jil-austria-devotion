@@ -87,6 +87,11 @@ Every output is checked to decode back to the exact URL, including heavily
 downscaled, before being committed — a QR that does not scan is worse than no
 QR at all.
 
+The poster deliberately does *not* say how to add the app to a home screen.
+That wording differs between iPhone and Android, and a printed sheet has to
+guess. The app knows what it is running on and says the right thing itself, so
+the poster just points at it.
+
 ### The explainer video
 
 `demo/devotion-demo.mp4` is recorded by driving the real app in a phone-sized

@@ -313,43 +313,83 @@ app.querySelector('#do-copy')!.addEventListener('click', async () => {
 
 /* ---------- install hint ---------- */
 
+/**
+ * Installing is the one step that genuinely matters: iOS clears a plain
+ * website's storage after about a week idle, and a home-screen app is exempt.
+ * So the wording has to be right on whatever phone the member actually has —
+ * which is why this lives here, where the platform is knowable, rather than on
+ * a printed poster that has to guess.
+ */
+
 const INSTALL_DISMISSED = 'devotion:install-dismissed';
+
+type InstallPrompt = Event & { prompt: () => Promise<void> };
+
+let deferredPrompt: InstallPrompt | null = null;
+
+const SHARE_GLYPH =
+  '<svg class="glyph" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V3"/><path d="m7.5 7.5 4.5-4.5 4.5 4.5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></svg>';
 
 function isInstalled(): boolean {
   const iosStandalone = (navigator as Navigator & { standalone?: boolean }).standalone;
   return window.matchMedia('(display-mode: standalone)').matches || iosStandalone === true;
 }
 
-function showInstallHint(message: string, action?: { label: string; run: () => void }): void {
-  if (isInstalled() || localStorage.getItem(INSTALL_DISMISSED)) return;
-  const slot = app.querySelector<HTMLElement>('#install-slot')!;
-  const hint = document.createElement('div');
-  hint.className = 'install';
-  hint.innerHTML = `<span>${message}</span><button type="button">${action ? action.label : 'Got it'}</button>`;
-  hint.querySelector('button')!.addEventListener('click', () => {
-    if (action) action.run();
-    localStorage.setItem(INSTALL_DISMISSED, '1');
-    hint.remove();
-  });
-  slot.replaceChildren(hint);
+function phoneKind(): 'ios' | 'android' | 'other' {
+  const ua = navigator.userAgent;
+  // iPadOS reports itself as a Mac, so touch points are the giveaway.
+  if (/iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) return 'ios';
+  if (/Android/.test(ua)) return 'android';
+  return 'other';
 }
 
-type InstallPrompt = Event & { prompt: () => Promise<void> };
+function renderInstallHint(): void {
+  if (isInstalled() || localStorage.getItem(INSTALL_DISMISSED)) return;
+
+  const kind = phoneKind();
+  // Nothing useful to say on a desktop that cannot install it either.
+  if (kind === 'other' && !deferredPrompt) return;
+
+  const steps = deferredPrompt
+    ? 'Tap Install, so it opens like an app and your entries are kept.'
+    : kind === 'ios'
+      ? `Tap ${SHARE_GLYPH} Share, then “Add to Home Screen”, so your entries are kept.`
+      : 'Open your browser’s menu, then “Add to Home screen”, so your entries are kept.';
+
+  const hint = document.createElement('div');
+  hint.className = 'install';
+  hint.innerHTML = `
+    <div class="body">
+      <strong>Add Devotion to your home screen</strong>
+      <p>${steps}</p>
+    </div>
+    ${deferredPrompt ? '<button type="button" class="go">Install</button>' : ''}
+    <button type="button" class="dismiss" aria-label="Dismiss">&times;</button>
+  `;
+
+  const close = () => {
+    localStorage.setItem(INSTALL_DISMISSED, '1');
+    hint.remove();
+  };
+
+  hint.querySelector('.dismiss')!.addEventListener('click', close);
+  hint.querySelector('.go')?.addEventListener('click', () => {
+    void deferredPrompt?.prompt();
+    close();
+  });
+
+  app.querySelector<HTMLElement>('#install-slot')!.replaceChildren(hint);
+}
 
 window.addEventListener('beforeinstallprompt', (event) => {
   event.preventDefault();
-  const deferred = event as InstallPrompt;
-  showInstallHint('Add Devotion to your home screen.', {
-    label: 'Install',
-    run: () => void deferred.prompt(),
-  });
+  deferredPrompt = event as InstallPrompt;
+  renderInstallHint(); // Upgrade to the one-tap version if the plain one is already up.
 });
 
-const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-if (isIOS) {
-  showInstallHint('Tap Share, then “Add to Home Screen”.');
-}
+// Chrome fires beforeinstallprompt a beat after load, and plenty of Android
+// browsers never fire it at all. Give it a moment, then say something anyway.
+setTimeout(renderInstallHint, 1200);
 
 /* ---------- boot ---------- */
 

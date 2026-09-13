@@ -92,8 +92,9 @@ function poster() {
   ${card((W - QR) / 2, 880, QR, 88)}
   ${text(URL_TEXT.replace(/^https:\/\//, ''), W / 2, 2470, { size: 62, fill: SOFT })}
   ${text('1.  Scan the code with your camera.', W / 2, 2720, { size: 78, fill: INK })}
-  ${text('2.  Tap Share, then Add to Home Screen.', W / 2, 2840, { size: 78, fill: INK })}
-  ${text('Fill it in each day. Send it to your lifegroup leader every week.', W / 2, 3020, { size: 66, fill: ACCENT, weight: 600 })}
+  ${text('2.  Add it to your home screen — the app', W / 2, 2840, { size: 78, fill: INK })}
+  ${text('shows you how on your phone.', W / 2, 2940, { size: 78, fill: INK })}
+  ${text('Fill it in each day. Send it to your lifegroup leader every week.', W / 2, 3120, { size: 66, fill: ACCENT, weight: 600 })}
   ${text('JIL Austria', W / 2, 3320, { size: 58, fill: FAINT })}
 </svg>`;
 }

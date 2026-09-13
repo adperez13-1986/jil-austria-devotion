@@ -436,27 +436,72 @@ dialog::backdrop { background: rgba(20, 18, 14, 0.42); }
 
 .install {
   max-width: 620px;
-  margin: 4px auto 0;
-  padding: 11px 14px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 13.5px;
-  color: var(--ink-soft);
-  background: var(--accent-soft);
-  border-radius: 12px;
   width: calc(100% - 24px);
+  margin: 4px auto 0;
+  padding: 13px 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: var(--accent-soft);
+  border: 1px solid color-mix(in srgb, var(--accent) 26%, transparent);
+  border-radius: 14px;
 }
 
-.install button {
-  margin-left: auto;
-  flex: none;
-  border: 0;
-  background: transparent;
-  color: var(--accent);
-  font-weight: 600;
-  padding: 4px;
+.install .body { flex: 1; min-width: 0; }
+
+.install strong {
+  display: block;
+  font-size: 14.5px;
+  color: var(--ink);
+  margin-bottom: 2px;
 }
+
+.install p {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+/* The iOS share glyph, sitting inline in the sentence where the word would be. */
+.install .glyph {
+  vertical-align: -2px;
+  margin: 0 1px;
+  color: var(--accent);
+}
+
+.install .go {
+  flex: none;
+  align-self: center;
+  min-height: 38px;
+  padding: 0 15px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+@media (prefers-color-scheme: dark) {
+  .install .go { color: #16150f; }
+}
+
+.install .dismiss {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  margin: -3px -4px 0 0;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink-faint);
+  font-size: 21px;
+  line-height: 1;
+}
+
+.install .dismiss:active { background: color-mix(in srgb, var(--accent) 14%, transparent); }
 
 .toast {
   position: fixed;
