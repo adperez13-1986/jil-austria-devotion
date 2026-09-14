@@ -12,16 +12,21 @@ Installable as a PWA, so it sits on the home screen and opens like a native app.
 2. Tap the gear once to enter name and lifegroup. That is the whole setup.
 3. Each day: tick the circle, type the Bible text, type a short reflection.
    Everything saves as you type.
-4. End of the week: **Share this week** → the phone's share sheet opens with a
-   PDF attached. Send it to the leader in whatever app they already use.
+4. End of the week: **Share this week** asks how to send it:
 
-The `…` button next to Share offers three alternatives:
+   - **Send as an image** — a PNG of the sheet. Chat apps preview it inline, so
+     a leader collecting a dozen on a Sunday reads them in the thread instead of
+     opening a dozen attachments. Usually the best choice for Messenger and
+     WhatsApp.
+   - **Send as a PDF** — the file, for saving or printing. Falls back to a plain
+     download on anything that cannot share files.
+   - **Send as a message** — the week as plain text, for pasting into any chat.
+   - **Copy as text** — the same, straight to the clipboard.
 
-- **Send as an image** — a PNG of the same sheet. Chat apps preview it inline,
-  so a leader collecting a dozen on a Sunday reads them in the thread instead of
-  opening a dozen attachments. Usually the best choice for Messenger and WhatsApp.
-- **Download PDF** — save it to the device.
-- **Send as a message** — the week as plain text, for pasting into any chat.
+   The button opens the chooser rather than picking a format. An earlier version
+   shared a PDF directly and hid the rest behind a `…` button; nobody would have
+   found them, and the format that reads best in a lifegroup chat was not the one
+   they would have landed on.
 
 Any past week can be shared — use the arrows to move back, then Share.
 

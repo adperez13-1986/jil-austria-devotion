@@ -192,13 +192,15 @@ async function record() {
   }
 
   await beat(900);
-  await say('At the end of the week, send it to your leader');
-  await beat(1800);
-  await page.locator('#more').tap();
-  await beat(1400);
+  await say('At the end of the week, tap Share this week');
+  await beat(1700);
+  await page.locator('#share').tap();
+  await beat(1500);
 
+  await say('Then pick how to send it');
+  await beat(1900);
   await say('An image shows up right inside the chat');
-  await beat(2600);
+  await beat(2700);
 
   await page.locator('#close-share').tap();
   await beat(600);
