@@ -11,6 +11,24 @@ import type { Font, PageBox, Surface } from './surface.ts';
 /** Enough that the text stays sharp when someone taps to zoom. */
 const SCALE = 3;
 
+/**
+ * Phone browsers refuse a canvas past roughly 16 megapixels, and a week of
+ * long reflections makes a tall sheet. Past that point the image is drawn a
+ * little less sharply rather than losing anything off the bottom — but never
+ * below 1:1, where the writing would stop being readable at all.
+ */
+const MAX_PIXELS = 16_000_000;
+const MAX_SIDE = 16_384;
+
+function scaleFor(width: number, height: number): number {
+  return Math.max(1, Math.min(
+    SCALE,
+    MAX_SIDE / width,
+    MAX_SIDE / height,
+    Math.sqrt(MAX_PIXELS / (width * height)),
+  ));
+}
+
 const FONT_CSS: Record<Font, (size: number) => string> = {
   helv: (size) => `${size}px Helvetica, Arial, sans-serif`,
   helvBold: (size) => `bold ${size}px Helvetica, Arial, sans-serif`,
@@ -89,17 +107,23 @@ function createSurface(ctx: CanvasRenderingContext2D): Surface {
 }
 
 export function renderPng(
-  page: PageBox,
+  width: number,
+  measureHeight: (surface: Surface) => number,
   draw: (surface: Surface, page: PageBox) => void,
 ): Promise<Blob> {
   const canvas = document.createElement('canvas');
-  canvas.width = Math.round(page.width * SCALE);
-  canvas.height = Math.round(page.height * SCALE);
-
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('Canvas is unavailable on this device');
 
-  ctx.scale(SCALE, SCALE);
+  // Measured first: the sheet grows downwards with whatever was written, and
+  // the canvas has to be sized before anything is drawn on it.
+  const page: PageBox = { width, height: measureHeight(createSurface(ctx)) };
+  const scale = scaleFor(page.width, page.height);
+
+  canvas.width = Math.round(page.width * scale);
+  canvas.height = Math.round(page.height * scale);
+
+  ctx.scale(scale, scale);
   ctx.textBaseline = 'alphabetic';
   ctx.lineCap = 'round';
   ctx.lineJoin = 'round';

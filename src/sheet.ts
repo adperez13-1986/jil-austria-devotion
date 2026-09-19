@@ -7,18 +7,83 @@ import { DAY_NAMES, datesOf, shortDate, weekLabel } from './week.ts';
 
 const MARGIN = 54;
 const ROW_TOP = 156;
-const ROW_H = 88;
+/** A day with little in it still gets a full-size row, as it always has. */
+const ROW_MIN_H = 88;
+/** Room under the last row for the footer, and the footer's own baseline above
+ *  the bottom edge — which keeps it where it has always sat on an A4 page. */
+const FOOTER_H = 70;
+const FOOTER_BASE = 35.89;
+/** Left edge of the written column, and the whitespace kept under a row. */
+const COL_X = MARGIN + 148;
+const ROW_PAD = 31;
+
+const TEXT_SIZE = 10.5;
+const TEXT_LEADING = 13;
+/** Baseline of the first Bible-text line, from the top of its row. */
+const TEXT_TOP = 17;
+
+const NOTE_SIZE = 8.8;
+const NOTE_LEADING = 11.5;
+/** Gap between the Bible text and the reflection under it. */
+const NOTE_GAP = 17;
 
 const ACCENT: [number, number, number] = [0.184, 0.365, 0.314];
 
+/**
+ * How much of a day fits.
+ *
+ * Paper is a fixed size, so the PDF still clips a runaway entry to keep the
+ * sheet on one page. An image has no such limit — it just grows taller — so
+ * nothing anyone writes is ever cut out of the shared picture.
+ */
+type Limits = { text: number; note: number };
+
+const PAPER: Limits = { text: 1, note: 3 };
+const UNLIMITED: Limits = { text: Infinity, note: Infinity };
+
+type Row = { top: number; height: number; textLines: string[]; noteLines: string[] };
+
+/** Where the reflection starts, pushed down by any extra Bible-text lines. */
+function noteTop(textLines: string[]): number {
+  return TEXT_TOP + Math.max(0, textLines.length - 1) * TEXT_LEADING + NOTE_GAP;
+}
+
+/** Row positions and wrapped lines, measured with the renderer's own metrics. */
+function layout(week: Week, c: Surface, pageWidth: number, limits: Limits): Row[] {
+  const width = pageWidth - MARGIN - COL_X;
+  const rows: Row[] = [];
+  let top = ROW_TOP;
+
+  for (const day of week.days) {
+    const text = day.text.trim();
+    const note = day.note.trim();
+    const textLines = text ? c.wrap(text, 'helv', TEXT_SIZE, width, limits.text) : [];
+    const noteLines = note ? c.wrap(note, 'helv', NOTE_SIZE, width, limits.note) : [];
+
+    const lastBaseline = noteTop(textLines) + Math.max(0, noteLines.length - 1) * NOTE_LEADING;
+    const height = Math.max(ROW_MIN_H, lastBaseline + ROW_PAD);
+
+    rows.push({ top, height, textLines, noteLines });
+    top += height;
+  }
+
+  return rows;
+}
+
+function pageHeight(rows: Row[]): number {
+  const last = rows[rows.length - 1];
+  return Math.max(A4.height, last.top + last.height + FOOTER_H);
+}
+
 /** The printed checklist, filled in. Drawn once, rendered as PDF or as PNG. */
-function drawWeek(week: Week, profile: Profile): (c: Surface, page: PageBox) => void {
+function drawWeek(week: Week, profile: Profile, limits: Limits): (c: Surface, page: PageBox) => void {
   const label = weekLabel(week.monday);
   const dates = datesOf(week.monday);
 
   return (c, page) => {
     const center = page.width / 2;
     const right = page.width - MARGIN;
+    const rows = layout(week, c, page.width, limits);
 
     c.gray(0.1);
     c.textCentered('Devotion', center, 72, 'times', 27);
@@ -40,7 +105,8 @@ function drawWeek(week: Week, profile: Profile): (c: Surface, page: PageBox) => 
 
     DAY_NAMES.forEach((dayName, i) => {
       const day = week.days[i];
-      const top = ROW_TOP + i * ROW_H;
+      const row = rows[i];
+      const top = row.top;
       const cx = MARGIN + 12;
       const cy = top + 15;
 
@@ -68,54 +134,60 @@ function drawWeek(week: Week, profile: Profile): (c: Surface, page: PageBox) => 
       c.gray(0.55);
       c.text(shortDate(dates[i]), MARGIN + 34, top + 36, 'helv', 7.5);
 
-      const x = MARGIN + 148;
-      const width = right - x;
+      const x = COL_X;
 
-      if (day.text.trim()) {
+      if (row.textLines.length) {
         c.gray(0.12);
-        c.text(day.text.trim(), x, top + 17, 'helv', 10.5);
+        row.textLines.forEach((line, k) => {
+          c.text(line, x, top + TEXT_TOP + k * TEXT_LEADING, 'helv', TEXT_SIZE);
+        });
       } else {
         c.gray(0.55);
-        c.text('Bible text', x, top + 17, 'helv', 8);
+        c.text('Bible text', x, top + TEXT_TOP, 'helv', 8);
         c.gray(0.88);
         c.lineWidth(0.5);
         c.line(x + c.measure('Bible text', 'helv', 8) + 8, top + 19, right, top + 19);
       }
 
-      const note = day.note.trim();
-      if (note) {
+      const noteY = top + noteTop(row.textLines);
+
+      if (row.noteLines.length) {
         c.gray(0.42);
-        c.wrap(note, 'helv', 8.8, width, 3).forEach((line: string, k: number) => {
-          c.text(line, x, top + 34 + k * 11.5, 'helv', 8.8);
+        row.noteLines.forEach((line, k) => {
+          c.text(line, x, noteY + k * NOTE_LEADING, 'helv', NOTE_SIZE);
         });
       } else {
         c.gray(0.55);
-        c.text('Short reflection', x, top + 34, 'helv', 8);
+        c.text('Short reflection', x, noteY, 'helv', 8);
         c.gray(0.9);
         c.lineWidth(0.5);
-        c.line(x + c.measure('Short reflection', 'helv', 8) + 8, top + 36, right, top + 36);
-        c.line(x, top + 50, right, top + 50);
+        c.line(x + c.measure('Short reflection', 'helv', 8) + 8, noteY + 2, right, noteY + 2);
+        c.line(x, noteY + 16, right, noteY + 16);
       }
 
       if (i < DAY_NAMES.length - 1) {
         c.gray(0.91);
         c.lineWidth(0.4);
-        c.line(MARGIN, top + ROW_H - 6, right, top + ROW_H - 6);
+        c.line(MARGIN, top + row.height - 6, right, top + row.height - 6);
       }
     });
 
     const footer = [`${completed(week)} of 7 days`, profile.church.trim()].filter(Boolean).join('   ·   ');
     c.gray(0.58);
-    c.textCentered(footer, center, 806, 'helv', 8.5);
+    c.textCentered(footer, center, page.height - FOOTER_BASE, 'helv', 8.5);
   };
 }
 
 export function weekAsPdf(week: Week, profile: Profile): Blob {
-  return renderPdf(`Devotion — ${weekLabel(week.monday)}`, drawWeek(week, profile));
+  return renderPdf(`Devotion — ${weekLabel(week.monday)}`, drawWeek(week, profile, PAPER));
 }
 
 export function weekAsPng(week: Week, profile: Profile): Promise<Blob> {
-  return renderPng(A4, drawWeek(week, profile));
+  return renderPng(
+    A4.width,
+    (c) => pageHeight(layout(week, c, A4.width, UNLIMITED)),
+    drawWeek(week, profile, UNLIMITED),
+  );
 }
 
 /** Plain text for pasting into Messenger, Viber or a group chat. */
