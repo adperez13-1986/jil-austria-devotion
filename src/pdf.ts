@@ -165,20 +165,42 @@ function pdfDate(date: Date): string {
     `${sign}${p(Math.floor(abs / 60))}'${p(abs % 60)}'`;
 }
 
-/** Assemble a one-page document from a drawing callback. */
 export const A4: PageBox = { width: PAGE_W, height: PAGE_H };
 
-export function renderPdf(title: string, draw: (surface: Surface, page: PageBox) => void): Blob {
-  const canvas = createCanvas();
-  draw(canvas, { width: PAGE_W, height: PAGE_H });
-  const content = canvas.ops.join('\n');
+/**
+ * Assemble a document from a drawing callback, one call per page.
+ *
+ * `count` is handed a surface to measure with — the sheet only knows how many
+ * pages a week of reflections needs once it can measure the text.
+ */
+export function renderPdf(
+  title: string,
+  count: (surface: Surface) => number,
+  draw: (surface: Surface, page: PageBox, index: number) => void,
+): Blob {
+  const page: PageBox = { width: PAGE_W, height: PAGE_H };
+  const total = Math.max(1, count(createCanvas()));
+
+  const streams = Array.from({ length: total }, (_, i) => {
+    const canvas = createCanvas();
+    draw(canvas, page, i);
+    return canvas.ops.join('\n');
+  });
+
+  // Object numbers: catalog, page tree, then a page and a content stream each,
+  // then the three fonts every page shares, then the document info.
+  const firstPage = 3;
+  const firstStream = firstPage + total;
+  const firstFont = firstStream + total;
 
   const objects = [
     '<< /Type /Catalog /Pages 2 0 R >>',
-    '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
-    `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${n(PAGE_W)} ${n(PAGE_H)}] ` +
-      '/Resources << /Font << /F1 5 0 R /F2 6 0 R /F3 7 0 R >> >> /Contents 4 0 R >>',
-    `<< /Length ${content.length} >>\nstream\n${content}\nendstream`,
+    `<< /Type /Pages /Kids [${streams.map((_, i) => `${firstPage + i} 0 R`).join(' ')}] /Count ${total} >>`,
+    ...streams.map((_, i) =>
+      `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${n(PAGE_W)} ${n(PAGE_H)}] ` +
+        `/Resources << /Font << /F1 ${firstFont} 0 R /F2 ${firstFont + 1} 0 R /F3 ${firstFont + 2} 0 R >> >> ` +
+        `/Contents ${firstStream + i} 0 R >>`),
+    ...streams.map((content) => `<< /Length ${content.length} >>\nstream\n${content}\nendstream`),
     '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>',
     '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>',
     '<< /Type /Font /Subtype /Type1 /BaseFont /Times-Roman /Encoding /WinAnsiEncoding >>',
