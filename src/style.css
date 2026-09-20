@@ -254,6 +254,57 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
 .day ::placeholder { color: var(--ink-faint); }
 
+/* ---------- book suggestions ---------- */
+
+.suggest { position: relative; }
+
+.suggest .options {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 5px);
+  left: -4px;
+  right: -4px;
+  margin: 0;
+  padding: 4px;
+  list-style: none;
+  background: var(--card);
+  border: 1px solid var(--rule);
+  border-radius: 11px;
+  box-shadow: 0 2px 4px rgba(35, 33, 28, 0.06), 0 12px 28px rgba(35, 33, 28, 0.12);
+  max-height: 244px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.suggest .options.above {
+  top: auto;
+  bottom: calc(100% + 5px);
+}
+
+.suggest .options li {
+  padding: 9px 10px;
+  border-radius: 8px;
+  font-size: 15px;
+  color: var(--ink-soft);
+  cursor: pointer;
+}
+
+.suggest .options b {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.suggest .options li[aria-selected='true'] {
+  background: var(--accent-soft);
+}
+
+.suggest .options li[aria-selected='true'],
+.suggest .options li[aria-selected='true'] b { color: var(--accent); }
+
+@media (hover: hover) {
+  .suggest .options li:hover { background: var(--accent-soft); }
+}
+
 /* ---------- bottom bar ---------- */
 
 .bar {

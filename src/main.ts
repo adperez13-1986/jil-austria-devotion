@@ -4,6 +4,7 @@ import { completed, loadProfile, loadWeek, saveProfile, saveWeek } from './store
 import type { Profile, Week } from './store.ts';
 import { copyText, preparePng, shareFile, sharePdf, sharePng, shareText } from './share.ts';
 import { buildIcs, formatTime, newReminderUid } from './reminder.ts';
+import { attachBookSuggest } from './suggest.ts';
 
 const ICON = {
   check: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
@@ -146,7 +147,9 @@ function renderWeek(): void {
           <span class="date">${shortDate(date)}</span>
           ${isToday(date) ? '<span class="pill">Today</span>' : ''}
         </div>
-        <input class="text" type="text" placeholder="Bible text" enterkeyhint="next" />
+        <div class="suggest">
+          <input class="text" type="text" placeholder="Bible text" enterkeyhint="next" />
+        </div>
         <textarea class="note" rows="1" placeholder="Short reflection"></textarea>
       </div>
     `;
@@ -166,6 +169,9 @@ function renderWeek(): void {
       updateCount();
       flushSave();
     });
+
+    // Before the handlers below: an open suggestion list answers Enter itself.
+    attachBookSuggest(text);
 
     text.addEventListener('input', () => { day.text = text.value; queueSave(); });
     text.addEventListener('keydown', (event) => {
