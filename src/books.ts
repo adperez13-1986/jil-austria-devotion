@@ -8,75 +8,75 @@
  * canon, which is what JIL Austria preaches from.
  */
 
-type Book = { name: string; aliases: string[] };
+type Book = { name: string; chapters: number; aliases: string[] };
 
 const BOOKS: Book[] = [
-  { name: 'Genesis', aliases: ['gen', 'ge', 'gn'] },
-  { name: 'Exodus', aliases: ['ex', 'exo', 'exod'] },
-  { name: 'Leviticus', aliases: ['lev', 'lv'] },
-  { name: 'Numbers', aliases: ['num', 'nm', 'nu'] },
-  { name: 'Deuteronomy', aliases: ['deut', 'deu', 'dt'] },
-  { name: 'Joshua', aliases: ['josh', 'jos'] },
-  { name: 'Judges', aliases: ['judg', 'jdg', 'jg'] },
-  { name: 'Ruth', aliases: ['rth', 'ru'] },
-  { name: '1 Samuel', aliases: ['1 sam', '1 sa', '1 sm'] },
-  { name: '2 Samuel', aliases: ['2 sam', '2 sa', '2 sm'] },
-  { name: '1 Kings', aliases: ['1 kgs', '1 ki', '1 kin'] },
-  { name: '2 Kings', aliases: ['2 kgs', '2 ki', '2 kin'] },
-  { name: '1 Chronicles', aliases: ['1 chr', '1 ch', '1 chron'] },
-  { name: '2 Chronicles', aliases: ['2 chr', '2 ch', '2 chron'] },
-  { name: 'Ezra', aliases: ['ezr'] },
-  { name: 'Nehemiah', aliases: ['neh', 'ne'] },
-  { name: 'Esther', aliases: ['est', 'esth'] },
-  { name: 'Job', aliases: ['jb'] },
-  { name: 'Psalm', aliases: ['ps', 'psa', 'psalms', 'pss', 'psm'] },
-  { name: 'Proverbs', aliases: ['prov', 'prv', 'pr'] },
-  { name: 'Ecclesiastes', aliases: ['eccl', 'ecc', 'ec', 'qoh'] },
-  { name: 'Song of Solomon', aliases: ['song', 'song of songs', 'sos', 'ss', 'canticles'] },
-  { name: 'Isaiah', aliases: ['isa', 'is'] },
-  { name: 'Jeremiah', aliases: ['jer', 'jr'] },
-  { name: 'Lamentations', aliases: ['lam', 'la'] },
-  { name: 'Ezekiel', aliases: ['ezek', 'eze', 'ezk'] },
-  { name: 'Daniel', aliases: ['dan', 'dn'] },
-  { name: 'Hosea', aliases: ['hos', 'ho'] },
-  { name: 'Joel', aliases: ['joe', 'jl'] },
-  { name: 'Amos', aliases: ['am'] },
-  { name: 'Obadiah', aliases: ['obad', 'ob'] },
-  { name: 'Jonah', aliases: ['jon', 'jnh'] },
-  { name: 'Micah', aliases: ['mic', 'mi'] },
-  { name: 'Nahum', aliases: ['nah', 'na'] },
-  { name: 'Habakkuk', aliases: ['hab', 'hb'] },
-  { name: 'Zephaniah', aliases: ['zeph', 'zep'] },
-  { name: 'Haggai', aliases: ['hag', 'hg'] },
-  { name: 'Zechariah', aliases: ['zech', 'zec'] },
-  { name: 'Malachi', aliases: ['mal'] },
-  { name: 'Matthew', aliases: ['matt', 'mat', 'mt'] },
-  { name: 'Mark', aliases: ['mrk', 'mk'] },
-  { name: 'Luke', aliases: ['luk', 'lk'] },
-  { name: 'John', aliases: ['jhn', 'jn'] },
-  { name: 'Acts', aliases: ['act', 'ac'] },
-  { name: 'Romans', aliases: ['rom', 'rm'] },
-  { name: '1 Corinthians', aliases: ['1 cor', '1 co'] },
-  { name: '2 Corinthians', aliases: ['2 cor', '2 co'] },
-  { name: 'Galatians', aliases: ['gal', 'ga'] },
-  { name: 'Ephesians', aliases: ['eph'] },
-  { name: 'Philippians', aliases: ['phil', 'php', 'pp'] },
-  { name: 'Colossians', aliases: ['col'] },
-  { name: '1 Thessalonians', aliases: ['1 thess', '1 th', '1 thes'] },
-  { name: '2 Thessalonians', aliases: ['2 thess', '2 th', '2 thes'] },
-  { name: '1 Timothy', aliases: ['1 tim', '1 ti'] },
-  { name: '2 Timothy', aliases: ['2 tim', '2 ti'] },
-  { name: 'Titus', aliases: ['tit'] },
-  { name: 'Philemon', aliases: ['phlm', 'phm', 'philem'] },
-  { name: 'Hebrews', aliases: ['heb'] },
-  { name: 'James', aliases: ['jas', 'jm'] },
-  { name: '1 Peter', aliases: ['1 pet', '1 pe', '1 pt'] },
-  { name: '2 Peter', aliases: ['2 pet', '2 pe', '2 pt'] },
-  { name: '1 John', aliases: ['1 jn', '1 jhn'] },
-  { name: '2 John', aliases: ['2 jn', '2 jhn'] },
-  { name: '3 John', aliases: ['3 jn', '3 jhn'] },
-  { name: 'Jude', aliases: ['jud', 'jd'] },
-  { name: 'Revelation', aliases: ['rev', 'rv', 'revelations', 'apocalypse'] },
+  { name: 'Genesis', chapters: 50, aliases: ['gen', 'ge', 'gn'] },
+  { name: 'Exodus', chapters: 40, aliases: ['ex', 'exo', 'exod'] },
+  { name: 'Leviticus', chapters: 27, aliases: ['lev', 'lv'] },
+  { name: 'Numbers', chapters: 36, aliases: ['num', 'nm', 'nu'] },
+  { name: 'Deuteronomy', chapters: 34, aliases: ['deut', 'deu', 'dt'] },
+  { name: 'Joshua', chapters: 24, aliases: ['josh', 'jos'] },
+  { name: 'Judges', chapters: 21, aliases: ['judg', 'jdg', 'jg'] },
+  { name: 'Ruth', chapters: 4, aliases: ['rth', 'ru'] },
+  { name: '1 Samuel', chapters: 31, aliases: ['1 sam', '1 sa', '1 sm'] },
+  { name: '2 Samuel', chapters: 24, aliases: ['2 sam', '2 sa', '2 sm'] },
+  { name: '1 Kings', chapters: 22, aliases: ['1 kgs', '1 ki', '1 kin'] },
+  { name: '2 Kings', chapters: 25, aliases: ['2 kgs', '2 ki', '2 kin'] },
+  { name: '1 Chronicles', chapters: 29, aliases: ['1 chr', '1 ch', '1 chron'] },
+  { name: '2 Chronicles', chapters: 36, aliases: ['2 chr', '2 ch', '2 chron'] },
+  { name: 'Ezra', chapters: 10, aliases: ['ezr'] },
+  { name: 'Nehemiah', chapters: 13, aliases: ['neh', 'ne'] },
+  { name: 'Esther', chapters: 10, aliases: ['est', 'esth'] },
+  { name: 'Job', chapters: 42, aliases: ['jb'] },
+  { name: 'Psalm', chapters: 150, aliases: ['ps', 'psa', 'psalms', 'pss', 'psm'] },
+  { name: 'Proverbs', chapters: 31, aliases: ['prov', 'prv', 'pr'] },
+  { name: 'Ecclesiastes', chapters: 12, aliases: ['eccl', 'ecc', 'ec', 'qoh'] },
+  { name: 'Song of Solomon', chapters: 8, aliases: ['song', 'song of songs', 'sos', 'ss', 'canticles'] },
+  { name: 'Isaiah', chapters: 66, aliases: ['isa', 'is'] },
+  { name: 'Jeremiah', chapters: 52, aliases: ['jer', 'jr'] },
+  { name: 'Lamentations', chapters: 5, aliases: ['lam', 'la'] },
+  { name: 'Ezekiel', chapters: 48, aliases: ['ezek', 'eze', 'ezk'] },
+  { name: 'Daniel', chapters: 12, aliases: ['dan', 'dn'] },
+  { name: 'Hosea', chapters: 14, aliases: ['hos', 'ho'] },
+  { name: 'Joel', chapters: 3, aliases: ['joe', 'jl'] },
+  { name: 'Amos', chapters: 9, aliases: ['am'] },
+  { name: 'Obadiah', chapters: 1, aliases: ['obad', 'ob'] },
+  { name: 'Jonah', chapters: 4, aliases: ['jon', 'jnh'] },
+  { name: 'Micah', chapters: 7, aliases: ['mic', 'mi'] },
+  { name: 'Nahum', chapters: 3, aliases: ['nah', 'na'] },
+  { name: 'Habakkuk', chapters: 3, aliases: ['hab', 'hb'] },
+  { name: 'Zephaniah', chapters: 3, aliases: ['zeph', 'zep'] },
+  { name: 'Haggai', chapters: 2, aliases: ['hag', 'hg'] },
+  { name: 'Zechariah', chapters: 14, aliases: ['zech', 'zec'] },
+  { name: 'Malachi', chapters: 4, aliases: ['mal'] },
+  { name: 'Matthew', chapters: 28, aliases: ['matt', 'mat', 'mt'] },
+  { name: 'Mark', chapters: 16, aliases: ['mrk', 'mk'] },
+  { name: 'Luke', chapters: 24, aliases: ['luk', 'lk'] },
+  { name: 'John', chapters: 21, aliases: ['jhn', 'jn'] },
+  { name: 'Acts', chapters: 28, aliases: ['act', 'ac'] },
+  { name: 'Romans', chapters: 16, aliases: ['rom', 'rm'] },
+  { name: '1 Corinthians', chapters: 16, aliases: ['1 cor', '1 co'] },
+  { name: '2 Corinthians', chapters: 13, aliases: ['2 cor', '2 co'] },
+  { name: 'Galatians', chapters: 6, aliases: ['gal', 'ga'] },
+  { name: 'Ephesians', chapters: 6, aliases: ['eph'] },
+  { name: 'Philippians', chapters: 4, aliases: ['phil', 'php', 'pp'] },
+  { name: 'Colossians', chapters: 4, aliases: ['col'] },
+  { name: '1 Thessalonians', chapters: 5, aliases: ['1 thess', '1 th', '1 thes'] },
+  { name: '2 Thessalonians', chapters: 3, aliases: ['2 thess', '2 th', '2 thes'] },
+  { name: '1 Timothy', chapters: 6, aliases: ['1 tim', '1 ti'] },
+  { name: '2 Timothy', chapters: 4, aliases: ['2 tim', '2 ti'] },
+  { name: 'Titus', chapters: 3, aliases: ['tit'] },
+  { name: 'Philemon', chapters: 1, aliases: ['phlm', 'phm', 'philem'] },
+  { name: 'Hebrews', chapters: 13, aliases: ['heb'] },
+  { name: 'James', chapters: 5, aliases: ['jas', 'jm'] },
+  { name: '1 Peter', chapters: 5, aliases: ['1 pet', '1 pe', '1 pt'] },
+  { name: '2 Peter', chapters: 3, aliases: ['2 pet', '2 pe', '2 pt'] },
+  { name: '1 John', chapters: 5, aliases: ['1 jn', '1 jhn'] },
+  { name: '2 John', chapters: 1, aliases: ['2 jn', '2 jhn'] },
+  { name: '3 John', chapters: 1, aliases: ['3 jn', '3 jhn'] },
+  { name: 'Jude', chapters: 1, aliases: ['jud', 'jd'] },
+  { name: 'Revelation', chapters: 22, aliases: ['rev', 'rv', 'revelations', 'apocalypse'] },
 ];
 
 /**
@@ -133,4 +133,64 @@ export function suggestBooks(fragment: string, limit = 6): string[] {
   }
 
   return [...exactAlias, ...byName, ...byAlias, ...byLastWord].slice(0, limit);
+}
+
+/** A reference the app understood well enough to link to. */
+export type Reference = {
+  /** The canonical book name, however it was abbreviated when typed. */
+  book: string;
+  chapters: number;
+  /** The first number written, when it is a chapter rather than a verse. */
+  chapter: number | null;
+  /** What a Bible site should be asked for, e.g. "1 Corinthians 13:4-7". */
+  query: string;
+};
+
+/** Read "1cor 13:4-7" as 1 Corinthians 13:4-7. Null when no book is recognised. */
+export function parseReference(value: string): Reference | null {
+  const { book, rest } = splitReference(value);
+  if (!book) return null;
+
+  const typed = normalize(book);
+  const match = BOOKS.find(
+    ({ name, aliases }) => normalize(name) === typed || aliases.some((a) => normalize(a) === typed),
+  );
+  if (!match) return null;
+
+  // In a one-chapter book people write the verse straight after the name —
+  // "Jude 25" is verse 25, not chapter 25 — so that number is not a chapter
+  // unless a colon says it is.
+  const first = /^(\d+)/.exec(rest)?.[1];
+  const numbered = match.chapters > 1 || /^\d+\s*:/.test(rest);
+
+  return {
+    book: match.name,
+    chapters: match.chapters,
+    chapter: first && numbered ? Number(first) : null,
+    query: rest ? `${match.name} ${rest}` : match.name,
+  };
+}
+
+/**
+ * What's wrong with a reference, in words, or null when nothing is.
+ *
+ * Only chapter numbers are checked. Verse numbering differs between
+ * translations — 3 John ends at 14 in some and 15 in others — so a verse that
+ * looks out of range here may be perfectly real in the Bible on someone's lap.
+ */
+export function referenceProblem(reference: Reference): string | null {
+  const { book, chapter, chapters } = reference;
+  if (chapter === null) return null;
+  if (chapter < 1) return 'Chapters start at 1';
+  if (chapter > chapters) {
+    return chapters === 1
+      ? `${book} has only one chapter`
+      : `${book} has only ${chapters} chapters`;
+  }
+  return null;
+}
+
+/** Where to send someone to read it. No verse text ever enters this app. */
+export function passageUrl(reference: Reference): string {
+  return `https://www.biblegateway.com/passage/?search=${encodeURIComponent(reference.query)}`;
 }
